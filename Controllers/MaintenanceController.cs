@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Washing.DTOs;
 using Washing.Entities;
@@ -7,20 +8,23 @@ namespace Washing.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Technician,Admin")]
 public class MaintenanceController : ControllerBase
 {
     private readonly IGenericRepository<MaintenanceLog> _repository;
+    private readonly IMaintenanceService _maintenanceService;
 
-    public MaintenanceController(IGenericRepository<MaintenanceLog> repository)
+    public MaintenanceController(IGenericRepository<MaintenanceLog> repository, IMaintenanceService maintenanceService)
     {
         _repository = repository;
+        _maintenanceService = maintenanceService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MaintenanceLogResponseDto>>> GetAll()
     {
         var logs = await _repository.GetAllAsync();
-        var response = logs.Select(l => new MaintenanceLogResponseDto(l.Id, l.MachineId, l.Description, l.StartedAt));
+        var response = logs.Select(l => new MaintenanceLogResponseDto(l.Id, l.MachineId, l.Description, l.StartedAt, l.ResolvedAt, l.Cost));
         return Ok(response);
     }
 
@@ -31,7 +35,7 @@ public class MaintenanceController : ControllerBase
         if (log == null)
             return NotFound();
 
-        var response = new MaintenanceLogResponseDto(log.Id, log.MachineId, log.Description, log.StartedAt);
+        var response = new MaintenanceLogResponseDto(log.Id, log.MachineId, log.Description, log.StartedAt, log.ResolvedAt, log.Cost);
         return Ok(response);
     }
 
@@ -46,7 +50,7 @@ public class MaintenanceController : ControllerBase
         };
 
         var created = await _repository.AddAsync(log);
-        var response = new MaintenanceLogResponseDto(created.Id, created.MachineId, created.Description, created.StartedAt);
+        var response = new MaintenanceLogResponseDto(created.Id, created.MachineId, created.Description, created.StartedAt, created.ResolvedAt, created.Cost);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
     }
 
@@ -74,5 +78,33 @@ public class MaintenanceController : ControllerBase
 
         await _repository.DeleteAsync(id);
         return NoContent();
+    }
+
+    [HttpPost("report")]
+    public async Task<ActionResult<int>> ReportIssue(ReportIssueDto dto)
+    {
+        try
+        {
+            var logId = await _maintenanceService.ReportIssueAsync(dto.MachineId, dto.Description);
+            return Ok(new { logId, message = "Issue reported successfully" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("resolve")]
+    public async Task<IActionResult> ResolveIssue(ResolveIssueDto dto)
+    {
+        try
+        {
+            await _maintenanceService.ResolveIssueAsync(dto.LogId, dto.Cost, dto.Notes);
+            return Ok(new { message = "Issue resolved successfully" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }
