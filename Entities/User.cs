@@ -2,8 +2,9 @@ namespace Washing.Entities;
 
 public enum UserRole
 {
-    Client,
-    Admin
+    Client = 0,
+    Admin = 1,
+    Technician = 2
 }
 
 public class User
