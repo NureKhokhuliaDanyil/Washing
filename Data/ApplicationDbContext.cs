@@ -18,6 +18,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<MaintenanceLog> MaintenanceLogs { get; set; }
+    public DbSet<PromoCode> PromoCodes { get; set; }
+    public DbSet<TimePricingCondition> TimePricingConditions { get; set; }
+    public DbSet<LoadPricingCondition> LoadPricingConditions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -108,5 +111,27 @@ public class ApplicationDbContext : DbContext
             .WithMany(w => w.MaintenanceLogs)
             .HasForeignKey(m => m.MachineId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MaintenanceLog>(entity =>
+        {
+            entity.Property(e => e.Cost).HasColumnType("decimal(18,2)");
+        });
+
+        modelBuilder.Entity<PromoCode>(entity =>
+        {
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18,2)");
+            entity.HasIndex(e => e.Code).IsUnique();
+        });
+
+        modelBuilder.Entity<TimePricingCondition>(entity =>
+        {
+            entity.Property(e => e.Multiplier).HasColumnType("decimal(18,2)");
+        });
+
+        modelBuilder.Entity<LoadPricingCondition>(entity =>
+        {
+            entity.Property(e => e.LoadThreshold).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Multiplier).HasColumnType("decimal(18,2)");
+        });
     }
 }

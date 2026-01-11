@@ -10,6 +10,7 @@ public class WashingSession
     public DateTime? EndTime { get; set; }
     public string Status { get; set; } = string.Empty;
     public decimal ActualPrice { get; set; }
+    public bool DoorLocked { get; set; }
 
     public User User { get; set; } = null!;
     public WashingMachine Machine { get; set; } = null!;

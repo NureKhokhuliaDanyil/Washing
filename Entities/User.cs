@@ -2,8 +2,9 @@ namespace Washing.Entities;
 
 public enum UserRole
 {
-    Client,
-    Admin
+    Client = 0,
+    Admin = 1,
+    Technician = 2
 }
 
 public class User
@@ -14,6 +15,8 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public decimal Balance { get; set; }
+    public string? PasswordResetToken { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public ICollection<Laundry> OwnedLaundries { get; set; } = new List<Laundry>();
     public ICollection<WashingSession> WashingSessions { get; set; } = new List<WashingSession>();
