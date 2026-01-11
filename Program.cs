@@ -28,7 +28,9 @@ namespace Washing
             else
             {
                 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseNpgsql(connectionString));
+                    options.UseNpgsql(connectionString)
+                        .ConfigureWarnings(warnings =>
+                            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
             }
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
