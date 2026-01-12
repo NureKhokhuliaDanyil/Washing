@@ -20,18 +20,9 @@ namespace Washing
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            if (builder.Environment.IsDevelopment())
-            {
-                builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(connectionString));
-            }
-            else
-            {
-                builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseNpgsql(connectionString)
-                        .ConfigureWarnings(warnings =>
-                            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
-            }
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

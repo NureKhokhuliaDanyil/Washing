@@ -1,27 +1,76 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Washing.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Add_Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "LoadPricingConditions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LoadThreshold = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Multiplier = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoadPricingConditions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PromoCodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PromoCodes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimePricingConditions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TimeStart = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    TimeEnd = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    Multiplier = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimePricingConditions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false),
-                    Balance = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    Balance = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    PasswordResetToken = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,12 +81,12 @@ namespace Washing.Migrations
                 name: "Laundries",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OwnerId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WorkingHours = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OwnerId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    WorkingHours = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -54,12 +103,12 @@ namespace Washing.Migrations
                 name: "Notifications",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,12 +125,12 @@ namespace Washing.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,12 +147,12 @@ namespace Washing.Migrations
                 name: "Reviews",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    LaundryId = table.Column<int>(type: "int", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    LaundryId = table.Column<int>(type: "integer", nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    Comment = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,12 +175,12 @@ namespace Washing.Migrations
                 name: "WashingMachines",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LaundryId = table.Column<int>(type: "int", nullable: false),
-                    SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LaundryId = table.Column<int>(type: "integer", nullable: false),
+                    SerialNumber = table.Column<string>(type: "text", nullable: false),
+                    Model = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -148,12 +197,12 @@ namespace Washing.Migrations
                 name: "WashModes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LaundryId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DurationMinutes = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LaundryId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    DurationMinutes = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -170,11 +219,13 @@ namespace Washing.Migrations
                 name: "MaintenanceLogs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    MachineId = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MachineId = table.Column<int>(type: "integer", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ResolvedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Cost = table.Column<decimal>(type: "numeric(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -191,15 +242,16 @@ namespace Washing.Migrations
                 name: "WashingSessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    MachineId = table.Column<int>(type: "int", nullable: false),
-                    ModeId = table.Column<int>(type: "int", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ActualPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MachineId = table.Column<int>(type: "integer", nullable: false),
+                    ModeId = table.Column<int>(type: "integer", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    ActualPrice = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    DoorLocked = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -238,6 +290,12 @@ namespace Washing.Migrations
                 name: "IX_Notifications_UserId",
                 table: "Notifications",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PromoCodes_Code",
+                table: "PromoCodes",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_LaundryId",
@@ -284,13 +342,22 @@ namespace Washing.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "LoadPricingConditions");
+
+            migrationBuilder.DropTable(
                 name: "MaintenanceLogs");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
+                name: "PromoCodes");
+
+            migrationBuilder.DropTable(
                 name: "Reviews");
+
+            migrationBuilder.DropTable(
+                name: "TimePricingConditions");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
